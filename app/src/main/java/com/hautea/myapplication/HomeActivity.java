@@ -1,6 +1,7 @@
 package com.hautea.myapplication;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -67,6 +68,16 @@ public class HomeActivity extends AppCompatActivity {
             tvusername.setText(all_users.get(position).get(db.TBL_USER_USERNAME));
 
             final int userid = Integer.parseInt(all_users.get(position).get(db.TBL_USER_ID));
+            ivedit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    db.editUser(userid);
+                    Intent create = new Intent(HomeActivity.this, EdituserActivity.class);
+                    create.putExtra(db.TBL_USER_ID, userid);
+                    startActivity(create);
+                }
+            });
+
             ivdelete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -77,5 +88,11 @@ public class HomeActivity extends AppCompatActivity {
             });
             return (convertView);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        fetch_user();
+        super.onResume();
     }
 }

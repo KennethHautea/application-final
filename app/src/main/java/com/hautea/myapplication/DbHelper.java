@@ -94,4 +94,34 @@ public class DbHelper extends SQLiteOpenHelper {
     public void deleteUser(int userid) {
         dbWriteable.delete(TBL_USERS, TBL_USER_ID + "=" + userid, null);
     }
+
+    public void editUser(int userid) {
+
+    }
+
+    public ArrayList<HashMap<String, String>> getSelectedUserData(int userid) {
+        String sql_SelectedUser = String.format("SELECT * FROM %s WHERE %s = %s", TBL_USERS, TBL_USER_ID, userid);
+
+        Cursor cur = dbReadable.rawQuery(sql_SelectedUser, null);
+        ArrayList<HashMap<String, String>> selectedUser = new ArrayList();
+
+        while (cur.moveToNext()){
+            HashMap<String, String> map_user = new HashMap();
+            map_user.put(TBL_USER_USERNAME, cur.getString(cur.getColumnIndex(TBL_USER_USERNAME)));
+            map_user.put(TBL_USER_PASSWORD, cur.getString(cur.getColumnIndex(TBL_USER_PASSWORD)));
+            map_user.put(TBL_USER_FULLNAME, cur.getString(cur.getColumnIndex(TBL_USER_FULLNAME)));
+            selectedUser.add(map_user);
+        }
+        cur.close();
+        return selectedUser;
+    }
+
+    public void updateuser(HashMap<String, String> map_user) {
+        ContentValues val = new ContentValues();
+        val.put(TBL_USER_USERNAME, map_user.get(TBL_USER_USERNAME));
+        val.put(TBL_USER_PASSWORD, map_user.get(TBL_USER_PASSWORD));
+        val.put(TBL_USER_FULLNAME, map_user.get(TBL_USER_FULLNAME));
+        dbWriteable.update(TBL_USERS, val, TBL_USER_ID + "=" + map_user.get(TBL_USER_ID), null);
+    }
+
 }
