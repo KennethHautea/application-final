@@ -1,13 +1,15 @@
 package com.hautea.myapplication;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.content.SharedPreferences;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Layout;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -26,6 +28,8 @@ public class HomeActivity extends AppCompatActivity {
     ArrayList<HashMap<String,String>> all_users;
     ListViewAdapter adapter;
 
+    SharedPreferences shared;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +37,7 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         db = new DbHelper(this);
+        shared = getSharedPreferences("kenneth", Context.MODE_PRIVATE);
         lvUsers = findViewById(R.id.lvusers);
         fetch_user();
     }
@@ -91,8 +96,45 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.logout, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.btn_logout:
+                new AlertDialog.Builder(this)
+                        .setTitle("LOGOUT")
+                        .setMessage("Are you sure you wanted to logout?")
+                        .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                shared.edit().remove(db.TBL_USER_ID).commit();
+                                Toast.makeText(HomeActivity.this, "You have successfully logout", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(getBaseContext(), LoginActivity.class));
+                                HomeActivity.this.finish();
+                            }
+                        })
+                        .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        })
+                        .show();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     protected void onResume() {
         fetch_user();
+        if (!shared.contains(db.TBL_USER_ID)){
+            this.finish();
+            startActivity(new Intent(this, LoginActivity.class));
+        }
         super.onResume();
     }
 }

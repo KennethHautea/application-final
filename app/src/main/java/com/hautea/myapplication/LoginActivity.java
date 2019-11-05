@@ -1,8 +1,11 @@
 package com.hautea.myapplication;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +19,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     String username, password;
     int formsuccess, userid;
     DbHelper db;
+    SharedPreferences shared;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +27,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_login);
 
         db = new DbHelper(this);
+        shared = getSharedPreferences("kenneth" , Context.MODE_PRIVATE);
         bt_login = (Button) findViewById(R.id.btn_login);
         textViewcreate = (TextView) findViewById(R.id.tv_create);
         et_username = (EditText) findViewById(R.id.ET_logusername);
@@ -52,6 +57,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                     userid = db.checkUser(username,password);
                     if(userid >=1 ) {
+                        SharedPreferences.Editor editor = shared.edit();
+                        editor.putInt(db.TBL_USER_ID, userid).commit();
+                        this.finish();
                         startActivity(new Intent(this, HomeActivity.class));
                     }
                     else {
@@ -70,5 +78,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 break;
 
         }
+    }
+
+    @Override
+    protected void onResume() {
+        if (shared.contains(db.TBL_USER_ID)){
+            this.finish();
+            startActivity(new Intent(this, HomeActivity.class));
+        }
+        super.onResume();
     }
 }
